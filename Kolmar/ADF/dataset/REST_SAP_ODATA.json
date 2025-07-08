@@ -1,0 +1,24 @@
+{
+	"name": "REST_SAP_ODATA",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "RESTForOdata",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Endpoint": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@dataset().Endpoint",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,14 @@
+{
+	"name": "RESTForOdata",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "RestConnecter For Odata",
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://example.com",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}

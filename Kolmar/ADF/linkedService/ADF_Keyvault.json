@@ -1,0 +1,11 @@
+{
+	"name": "ADF_Keyvault",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://KV-forEveryone.vault.azure.net/"
+		}
+	}
+}

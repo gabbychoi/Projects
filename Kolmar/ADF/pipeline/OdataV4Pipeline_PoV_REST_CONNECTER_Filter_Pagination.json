@@ -1,0 +1,539 @@
+{
+	"name": "OdataV4Pipeline_PoV_REST_CONNECTER_Filter_Pagination",
+	"properties": {
+		"activities": [
+			{
+				"name": "call rowcount",
+				"description": "Odata V4 기반증분  데이터 행 수 출력작업을 합니다.",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "set endpoint",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SETfilter",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": {
+						"value": "@concat(pipeline().globalParameters.SAPOdata_PS_URL,variables('endpoint'),'/$count?$filter=',variables('filter'))",
+						"type": "Expression"
+					},
+					"connectVia": {
+						"referenceName": "MAVEN-SHIR",
+						"type": "IntegrationRuntimeReference"
+					},
+					"authentication": {
+						"type": "Basic",
+						"username": "RFC_BI",
+						"password": {
+							"type": "AzureKeyVaultSecret",
+							"store": {
+								"referenceName": "ADF_Keyvault",
+								"type": "LinkedServiceReference"
+							},
+							"secretName": "ADF-SAP-Key"
+						}
+					}
+				}
+			},
+			{
+				"name": "set endpoint",
+				"description": "url 뒤에 붙을 엔드포인트 설정 변수\n포트번호 뒤에 /로 시작하는 엔드포인트 값 작성\n",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "endpoint",
+					"value": "/sap/opu/odata4/sap/zfi_odata_v4/srvd/sap/zfi_odata_v4/0001/PA_ACT_SUM"
+				}
+			},
+			{
+				"name": "set rowcount",
+				"description": "웹 작업을 통해 얻은 행 수를 변수로 할당합니",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "call rowcount",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "rowcount",
+					"value": {
+						"value": "@activity('call rowcount').output.Response",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SETfilter",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "filter",
+					"value": {
+						"value": "@concat('fiscyearper eq ''',pipeline().parameters.fiscyearper,'''')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "If Condition",
+				"description": "IF condition 으로 불필요한 액티비티를 최소화할 필요가 있습니다. 특히 row 수를 선평가 하기 때문에 불필요한 copy 액티비티를 피할수 있습니다.",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "set rowcount",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "record_rowcount",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(variables('rowcount'),'0')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Odata Copy",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "RestSource",
+									"httpRequestTimeout": "00:01:40",
+									"requestInterval": "00.00:00:00.010",
+									"requestMethod": "GET",
+									"paginationRules": {
+										"AbsoluteUrl": "$['@odata.nextLink']"
+									}
+								},
+								"sink": {
+									"type": "SqlMISink",
+									"preCopyScript": {
+										"value": "@concat('DELETE FROM TB_SAP_ODATA_PA_ACT_SUM\nWHERE fiscyearper=',pipeline().parameters.DELETECOLUMN)",
+										"type": "Expression"
+									},
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"path": "['bukrs']"
+											},
+											"sink": {
+												"name": "bukrs",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['gjahr']"
+											},
+											"sink": {
+												"name": "gjahr",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['fiscyearper']"
+											},
+											"sink": {
+												"name": "fiscyearper",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['racct']"
+											},
+											"sink": {
+												"name": "racct",
+												"type": "Int32"
+											}
+										},
+										{
+											"source": {
+												"path": "['currency']"
+											},
+											"sink": {
+												"name": "currency",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['WERKS']"
+											},
+											"sink": {
+												"name": "WERKS",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['VKORG']"
+											},
+											"sink": {
+												"name": "VKORG",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['KNDNR']"
+											},
+											"sink": {
+												"name": "KNDNR",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['PRCTR']"
+											},
+											"sink": {
+												"name": "PRCTR",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['VKGRP']"
+											},
+											"sink": {
+												"name": "VKGRP",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['VKBUR']"
+											},
+											"sink": {
+												"name": "VKBUR",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['PAPH1']"
+											},
+											"sink": {
+												"name": "PAPH1",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['PAPH2']"
+											},
+											"sink": {
+												"name": "PAPH2",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['PAPH3']"
+											},
+											"sink": {
+												"name": "PAPH3",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['WERKS_T']"
+											},
+											"sink": {
+												"name": "WERKS_T",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['KNDNR_T']"
+											},
+											"sink": {
+												"name": "KNDNR_T",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['KTEXT']"
+											},
+											"sink": {
+												"name": "KTEXT",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['vkgrp_T']"
+											},
+											"sink": {
+												"name": "vkgrp_T",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['vkbur_T']"
+											},
+											"sink": {
+												"name": "vkbur_T",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"path": "['HSL']"
+											},
+											"sink": {
+												"name": "HSL",
+												"type": "Decimal"
+											}
+										}
+									],
+									"collectionReference": "$['value']"
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "REST_SAP_ODATA",
+									"type": "DatasetReference",
+									"parameters": {
+										"Endpoint": "@concat(variables('endpoint'),'?','$filter=',variables('filter'),'&$top=',variables('rowcount'))"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ADF_DW_DATASET",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema_name": "dbo",
+										"table_name": "table_name"
+									}
+								}
+							]
+						},
+						{
+							"name": "fiscyearformatchange",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "Odata Copy",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "MAVENSQLMI",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "@concat('\nUPDATE [dbo].[TB_SAP_ODATA_PA_ACT_SUM] SET fiscyearper=(fiscyearper/1000)*100 +fiscyearper%100 WHERE fiscyearper=',pipeline().parameters.fiscyearper)",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						},
+						{
+							"name": "fiscyearformatchange_valid",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "fiscyearformatchange",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "MAVENSQLMI",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "@concat('\nUPDATE [dbo].[TB_ADF_ETL_COUNT_VALIDATION_LOG] SET [DATA_COPY_COUNT]=(SELECT COUNT(1) FROM [dbo].[TB_SAP_ODATA_PA_ACT_SUM] WHERE fiscyearper=',pipeline().parameters.DELETECOLUMN,')',' WHERE [PIPELINE_RUNID]=''',pipeline().RunId,'''')",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "record_rowcount",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "call rowcount",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[PROC_TB_ADF_ETL_COUNT_VALIDATION_LOG]",
+					"storedProcedureParameters": {
+						"HTTP_CALL_COUNT": {
+							"value": {
+								"value": "@variables('rowcount')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PIPELINE_NAME": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PIPELINE_RUNID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TARGET_TABLE": {
+							"value": "TB_SAP_ODATA_PA_ACT_SUM",
+							"type": "String"
+						},
+						"ADDITIONAL_CONDITION": {
+							"value": {
+								"value": "@pipeline().parameters.DELETECOLUMN",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "MAVENSQLMI",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"fiscyearper": {
+				"type": "string"
+			},
+			"DELETECOLUMN": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"endpoint": {
+				"type": "String"
+			},
+			"rowcount": {
+				"type": "String"
+			},
+			"filter": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "PipelineTemplate"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-06-29T04:57:58Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

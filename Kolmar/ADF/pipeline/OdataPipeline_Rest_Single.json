@@ -1,0 +1,569 @@
+{
+	"name": "OdataPipeline_Rest_Single",
+	"properties": {
+		"activities": [
+			{
+				"name": "Odata Copy",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "set rowcount",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"AbsoluteUrl": "$['@odata.nextLink']"
+						}
+					},
+					"sink": {
+						"type": "SqlMISink",
+						"preCopyScript": "DROP TABLE IF EXISTS  TB_SAP_ODATA_BS_LIST_BAK\n\nSELECT *\nINTO TB_SAP_ODATA_BS_LIST_BAK\nFROM TB_SAP_ODATA_BS_LIST\nTRUNCATE TABLE TB_SAP_ODATA_BS_LIST",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['bukrs']"
+								},
+								"sink": {
+									"name": "bukrs",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['GJAHR']"
+								},
+								"sink": {
+									"name": "GJAHR",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['seqno']"
+								},
+								"sink": {
+									"name": "seqno",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['DESCRIPT']"
+								},
+								"sink": {
+									"name": "DESCRIPT",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['currency']"
+								},
+								"sink": {
+									"name": "currency",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl12']"
+								},
+								"sink": {
+									"name": "hsl12",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl11']"
+								},
+								"sink": {
+									"name": "hsl11",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl10']"
+								},
+								"sink": {
+									"name": "hsl10",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl09']"
+								},
+								"sink": {
+									"name": "hsl09",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl08']"
+								},
+								"sink": {
+									"name": "hsl08",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl07']"
+								},
+								"sink": {
+									"name": "hsl07",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl06']"
+								},
+								"sink": {
+									"name": "hsl06",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl05']"
+								},
+								"sink": {
+									"name": "hsl05",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl04']"
+								},
+								"sink": {
+									"name": "hsl04",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl03']"
+								},
+								"sink": {
+									"name": "hsl03",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl02']"
+								},
+								"sink": {
+									"name": "hsl02",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['hsl01']"
+								},
+								"sink": {
+									"name": "hsl01",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['setid']"
+								},
+								"sink": {
+									"name": "setid",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['shortname']"
+								},
+								"sink": {
+									"name": "shortname",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['hlevel']"
+								},
+								"sink": {
+									"name": "hlevel",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"path": "['type']"
+								},
+								"sink": {
+									"name": "type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['saktx']"
+								},
+								"sink": {
+									"name": "saktx",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['saknr']"
+								},
+								"sink": {
+									"name": "saknr",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['zfkber']"
+								},
+								"sink": {
+									"name": "zfkber",
+									"type": "String"
+								}
+							}
+						],
+						"collectionReference": "$['value']"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "REST_SAP_ODATA",
+						"type": "DatasetReference",
+						"parameters": {
+							"Endpoint": {
+								"value": "@concat(variables('endpoint'),'?$top=',variables('rowcount'))",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ADF_DW_DATASET",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_name": "dbo",
+							"table_name": "TB_SAP_ODATA_BS_LIST"
+						}
+					}
+				]
+			},
+			{
+				"name": "call rowcount",
+				"description": "Odata V4 기반증분  데이터 행 수 출력작업을 합니다.",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "set endpoint",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": {
+						"value": "@concat(pipeline().globalParameters.SAPOdata_PS_URL,variables('endpoint'),'/$count')",
+						"type": "Expression"
+					},
+					"connectVia": {
+						"referenceName": "MAVEN-SHIR",
+						"type": "IntegrationRuntimeReference"
+					},
+					"authentication": {
+						"type": "Basic",
+						"username": "RFC_BI",
+						"password": {
+							"type": "AzureKeyVaultSecret",
+							"store": {
+								"referenceName": "ADF_Keyvault",
+								"type": "LinkedServiceReference"
+							},
+							"secretName": "ADF-SAP-Key"
+						}
+					}
+				}
+			},
+			{
+				"name": "set endpoint",
+				"description": "url 뒤에 붙을 엔드포인트 설정 변수\n포트번호 뒤에 /로 시작하는 엔드포인트 값 작성 \n",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "endpoint",
+					"value": "/sap/opu/odata4/sap/zfi_odata_v4/srvd/sap/zfi_odata_v4/0001/bs_list"
+				}
+			},
+			{
+				"name": "set rowcount",
+				"description": "웹 작업을 통해 얻은 행 수를 변수로 할당합니",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "call rowcount",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "rowcount",
+					"value": {
+						"value": "@activity('call rowcount').output.Response",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "record_rowcount",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "set rowcount",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[PROC_TB_ADF_ETL_COUNT_VALIDATION_LOG]",
+					"storedProcedureParameters": {
+						"HTTP_CALL_COUNT": {
+							"value": {
+								"value": "@variables('rowcount')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PIPELINE_NAME": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PIPELINE_RUNID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TARGET_TABLE": {
+							"value": "TB_SAP_ODATA_BS_LIST",
+							"type": "String"
+						},
+						"ADDITIONAL_CONDITION": {
+							"value": null,
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "MAVENSQLMI",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "etl_valid",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "record_rowcount",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "Odata Copy",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "MAVENSQLMI",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "@concat('\nUPDATE [dbo].[TB_ADF_ETL_COUNT_VALIDATION_LOG] SET [DATA_COPY_COUNT]=(SELECT COUNT(1) FROM [dbo].[TB_SAP_ODATA_BS_LIST]) WHERE [PIPELINE_RUNID]=''',pipeline().RunId,'''')",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "Failure_Backup",
+				"description": "",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Odata Copy",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "MAVENSQLMI",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "INSERT INTO TB_SAP_ODATA_BS_LIST\nSELECT *\nFROM TB_SAP_ODATA_BS_LIST_BAK\n\nDROP TABLE TB_SAP_ODATA_BS_LIST_BAK"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "Success_Script",
+				"description": "",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Odata Copy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "MAVENSQLMI",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "DROP TABLE IF EXISTS  TB_SAP_ODATA_BS_LIST_BAK"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"concurrency": 2,
+		"variables": {
+			"pagingcount": {
+				"type": "Integer"
+			},
+			"endpoint": {
+				"type": "String"
+			},
+			"filter": {
+				"type": "String"
+			},
+			"select": {
+				"type": "String"
+			},
+			"for iterator": {
+				"type": "String"
+			},
+			"rowcount": {
+				"type": "String",
+				"defaultValue": "100368"
+			}
+		},
+		"folder": {
+			"name": "PipelineTemplate"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-06-29T04:57:58Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
