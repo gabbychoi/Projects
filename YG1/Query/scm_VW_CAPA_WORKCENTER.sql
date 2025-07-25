@@ -1,0 +1,7 @@
+CREATE VIEW SCM.VW_CAPA_WORKCENTER
+AS
+SELECT 
+WORK_CENTER AS [Work Ctr],
+Work_CENTER_NAME as [워크센터명],
+Work_center_count*Correction_rate as Capacity
+FROM DW_YG1.scm.TB_DW_DIM_SCM_WORKCENTER_CAPACITY
