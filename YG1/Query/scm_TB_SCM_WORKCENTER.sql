@@ -1,0 +1,10 @@
+COLUMN: WorkCenter varchar(6) NOT NULL
+COLUMN: StdTextKey varchar(7) NOT NULL
+COLUMN: Description varchar(36) NOT NULL
+COLUMN: GROUP varchar(17) NOT NULL
+COLUMN: PLANT_NM varchar(8) NOT NULL
+COLUMN: PRIORTY varchar(1) NOT NULL
+COLUMN: EndMill varchar(1) NOT NULL
+COLUMN: Drill varchar(1) NOT NULL
+COLUMN: CS varchar(1) NOT NULL
+COLUMN: RM varchar(1) NOT NULL
