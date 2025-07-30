@@ -1,23 +1,10 @@
 /****************************************************************************************************************
 SP 명  : PROC_SCM_MAIN
 SP 제목  : SCM 데이터마트 적재 프로시저
-최초작성자 : 이은경
-최초작성일 : 2024.09.22
+최초작성자 : 최은수
+최초작성일 : 2024.11.22
 SP 실행 예 : EXEC PROC_SCM_MAIN
-SP 설명  : 재무법인 PL 손익계산서
-   
-   [DATE_KEY] [date] NOT NULL,
-   [COMPANY_CD] [nvarchar](12) NOT NULL,
-   [SHORT_BORROWINGS_AMT] [float] NULL,  -- 단기차입금
-   [LONG_BORROWINGS_AMT] [float] NULL,   -- 장기차입금
-   [BORROWINGS_AMT] [float] NULL,    -- 차입금
-   [DEPOSITS_AMT] [float] NULL,    -- 예금
-   [NETTED_BORROWINGS_AMT] [float] NULL,  -- 순차입금
-   [SALES_AMT] [float] NULL,     -- 매출액
-   [INTEREST_EXPENSE_AMT] [float] NULL,  -- 이자비용
-   [ASSETS_AMT] [float] NULL,     -- 자산
-   [BORROWINGS_TO_TOTAL_ASSETS] [float] NULL, -- 차입금의존도
-변경이력  : 변경일/변경자/요청자/요청일/내용 
+
     
  
 ******************************************************************************************************************/
